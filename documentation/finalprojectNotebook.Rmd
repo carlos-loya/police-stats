@@ -1,0 +1,220 @@
+---
+title: '<center><b>Fatal Police Shootings Since 2015: Now with Census Data! </b></center>'
+author: "<center><b>Carlos Loya, Tolan Nguyen, Robin Stewart</b></center>"
+output:
+  html_document:
+    theme: journal
+    toc: yes
+  html_notebook:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+sessionInfo()
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+#**Introduction**
+
+Police shootings has been in the nightly news for as long as TV has existed, yet each new shooting brings everyone to shilling realizations. This study aims to shed some light on such dark themes and equip people with the facts. 
+
+This data is a list of fatal police shootings from 2015 as recorded by the Washington Post that details the deaths of United States citizens at the hands of police officers. It includes information of the names of the citizens, the manner of death, if the citizen was armed, age, gender, city, and date.
+
+Due to the personal nature of loss, the research team omitted the names of the deceased out of respect.  
+
+##**R Configuration**
+Below we display our sessionInfo() for replication purposes.
+
+```{r sessionInfo}
+sessionInfo(package=NULL)
+```
+
+```{r,include=FALSE}
+  source('../01 Data/finalplots.R')
+```
+#**Obtaining The Data Set**
+
+The data set was originally found on data.world, uploaded by a user named carlvlewis who claims that the data set is updated daily. For the purpose of this study we used the latest verison of the data that was available.
+
+The data that was originally obtained was raw and contained private information regarding real people, so the data was cleaned using the lapply and gsub functions. The team removed the names of the deceased and made the race variable clearer. This cleaned data set was upload to the project data set on data.world.
+
+To obtain a copy of this data follow the following steps.
+
+1. Copy and paste the following link into your prefered web browser: https://data.world/robin-stewart/s-17-dv-final-project
+    i. At the top-right section of your screen is a blue download button, that when clicked will download a zip file of the data set.
+    ii. Alternatively, scroll down to see a sample of the csv dataset. Click on the download button located to the right of the Explore button to download a csv file of the data set.
+
+
+The following is a summary of the cleaned data set:
+
+```{r}
+  summary(fatalPoliceShootings)
+```  
+
+##**ETL Data Cleaning**
+
+The following is the code we used to clean the data. Specifically we used the ETL to remove the victim's names, change the name of the state column from lowercase characters to uppercase. Then we changed specific values to be more descriptive. For example, we changed individual's race from one letter (eg, 'H') to the full word (eg, 'Hispanic'). This was done for our convience to be able to indentify race quicker. The same thing was done to the gender column, switching 'F' and 'M' to 'Female' and 'Male' respectively. Finally, we begin to parse through the dimensions of the data frame to remove symbols that would could case errors later when using the actual data.
+
+```{r, code = readLines("../01 Data/ETLDataCleanUp.R"), eval=FALSE}
+```
+
+
+##**Census Data**
+
+The U.S. Census Bureau and data.world have recently anounced a partnership which has resulted in data.world being host of the Census Bureau's biggest annual household survey, the American Community Suvery.
+
+Through the official US Census Buearu data.world profile, census data will be offered for any person to use and analyze: https://data.world/uscensusbureau
+
+We used a 2011-2015 Income of US Population Estimates data for this particular study. This dataset was found here: https://data.world/uscensusbureau/acs-2015-5-e-income
+
+Using the data.world R package, the 2011-2015 Income of US Population dataset and the Fatal Police Shootings were queried and pulled into RStudio and combined using dplyr. 
+
+Here is a summary of the combined dataset:
+
+```{r}
+summary(incomeOfTheFatallyShot)
+```  
+
+The columns of GINI, Per_Capita_Income, Median_Family_Income, and Median_Non_Family_Income were added from the census data and matched on state of the individual shot. This dataset was saved as a CSV for later use in Tablaeu and R Markdown.
+
+To create interesting visualizations, we must first understand what the combined data means. The columns that were queried from data.world were GINI, Per_Capita_Income, Median_Family_Income, and Median_Non_Family_Income. These are state-level summaries, meaning that each fatal shootings has per capita income, median family income, median non-family income information based on the state in which the shooting took place. Although this mixes individualized data with general data, it sheds some light into the type of environment and socioeconomic context the shooting took place.
+
+
+
+
+
+#**Non-Aggregated Measures Analysis**
+
+![Box Plot](../03 Visualizations/Boxplot.png)
+The Median Family Income vs. Fleeing  plot is shown above. This plot represents a boxplot example. The color is for the gender. Generally you see that that average median family income for all of the data points fall roughly between 70 K and 55 K. There are few outliers outside of this range meaning that the majority of data points are similar. 
+
+
+```{r}
+  plot(boxplot)
+```  
+This plot shows the median family income sorted by how the person fled from the police. We can see that the average of the state’s median family income for people who fled on foot is higher than the other ways of fleeing. This plot differs from the Tableau plot in that R/Shiny cannot display individual dots. The sampling from the data is also different in Shiny so the numbers are different we see a higher average median family income for people fleeing on foot.
+
+
+#**Aggregated Measures Analysis**
+
+![Histogram](../03 Visualizations/Histogram.png)
+This dual axis histogram represents the per capita income across the x axis. The left axis has the count of the per capita income and the right has the average median income. The blue bars go with the left axis and the orange dots go with the right. There is also a general average line displayed in addition to a quarter page system, the current quarter is Q1. It’s interesting to note that the peak per capita income count peaks at 26K and the average median income steadily increases with the increase in per capita income. 
+
+![Histogram](../03 Visualizations/Histogram - Action.png)
+This is the same visualization as shown above except that this visualization also includes actions when selecting specific data from the histogram.
+
+```{r}
+  plot(histogram)
+```  
+In this histogram, we plot the counts of per capita income for people shot by the police. We can see in this graph that the majority of people are from states that have low per capita income (less than 30k). This is different from our Tableau plot in that we were unable to do a dual axis plot in ggplot to show the average median income.
+
+
+
+#**Scatter Plots**
+
+![Map](../03 Visualizations/Map.png)
+The map is a relatively simple example where each state is colored by the average median income. The darker colored states have a higher income than the lighter colored states. It’s interesting to note that closer to either coast appears to have higher income than the middle of US.
+
+
+
+![Scatter Plot](../03 Visualizations/Scatter Plot.png)
+This plot is a representation of the age vs. median income with average trendlines. The color is based upon the threat level. It’s interesting to note that as median income increases age decreases for the trendline if the threat level was undetermined. 
+
+![Scatter Plot](../03 Visualizations/Scatter Plot - Action.png)
+
+![Dashboard](../03 Visualizations/Trend Model.png)
+This is based off of other plots already provided/described. This is simply all of the details about the trend model off of the scatter plot. 
+
+
+
+![Dashboard](../03 Visualizations/Dashboard.png)
+The dashboard represents two different plots a scatter plot example and a histogram example. These plots are also used for actions and further described during other parts of the notebook. This page makes the action easier to see though so that switching between workbook sheets is not required.
+
+
+
+
+```{r}
+  plot(scatterplot)
+```  
+This scatterplot depicts both median family income and GINI index for that state. It is colored to represent what the criminal was armed with when shot by the police. We can see that there is no correlation between median family income and GINI index, and that criminals with low to average family income tended to be armed with guns. In Shiny, this graph is equipped with actions to zoom in on a set of points or individual points. 
+
+
+
+
+#**Cross Tabs**
+
+![KPI](../03 Visualizations/KPI.png)
+This plot graphs people who were shot by the police by fleeing and their mental state, and shows their median family income. Of particular note is that mentally ill people who were fleeing on foot had higher median family income
+
+
+
+```{r}
+  plot(fleePlot)
+```  
+This is a barchart depicting income of how people are fleeing, separated by signs of mental illness. The line shows the average of median incomes by mental illness and feeling type.
+
+
+
+
+![Set](../03 Visualizations/Crosstab and Set.png)
+The Gender vs. Race crosstab plot is shown above. This graph shows the race of the individual shot against the individual’s gender. Each cell has the median income colored by race. A set was created by filtering those individuals that were shot in a state whose median family income was between 46,000 and 62,000. The set is what is the smaller text underneath the larger text for the cells where it is appropriate. It is interesting to see that in general the females average median income is higher. 
+
+
+
+
+```{r}
+  plot(genderRacePlot)
+```
+This graph shows the race of the individual shot against the individual's gender. A set was created by using the dplyr filter function to separate those individuals that were shot in a state who's state had a median family income was between 46,000 and 62,000. 
+
+
+
+
+![Parameter](../03 Visualizations/Parameter.png)
+This is a graph of gender of the individual shot vs if that individual showed signs of mental illness. The graph was then colored based on whether that particular individual was shot in area which had high/medium/low per capita income. This is a good example of using a parameter.  
+
+
+
+
+```{r}
+  plot(raceFleePlot)
+```
+This R visualization was created using the calculated fields of Median(MedianFamilyIncome/PerCapitaIncome) and plotting based on how the individual fled against the race of the individual shot.
+
+
+
+
+
+
+#**Bar Charts**
+
+![Table Calculations](../03 Visualizations/Barchart and Table Calculation.png)
+The Median Income of Race Broken up by Gender is shown above. This graph is  a representation of a barchart and table calculation. This combines both our data set and the census data set through the variables of race, gender and Median Income respectively. Multiple rows are used used to break down the race into genders for each field. A calculated table parameter is used specifically the avg_median_income - window_avg_income. This parameter is the color in addition to the text and helps show that the males have relatively high numbers for this parameter even though they may have relatively low avg_median_income on it’s own compared to the females.
+
+
+```{r}
+  plot(incomeByRacePlot)
+```
+
+The Median Income of Race Broken up by Gender is shown above, specifically the R version. This combines both our data set and the census data set through the variables of race, gender and Median Income respectively. A facet is used to break down the race into genders for each field. A calculated table parameter is used specifically the avg_median_income - window_avg_income. This parameter text helps show that the males have relatively high numbers for this parameter even though they may have relatively low avg_median_income on it’s own compared to the females. The numbers are slightly different due to limits on the SQL statement so the process does not take to long to pull the data.
+
+
+
+
+![ID Sets](../03 Visualizations/ID Sets.png)
+Individuals were plotted with their median income. A set was created for high income criminals, who had over 60k in income. These people were then plotted with their state’s GINI score which is shown here. All these high income criminals all had relatively the same GINI score.
+
+
+```{r}
+  plot(inequalityPlot)
+```
+
+This barchart shows the GINI inequality index of the area criminals are from, using ID-sets to separate high income criminals.
+
+
+
+#**R Shiny**
+All R visualizations were graphed on crosstabs in R Shiny. Each graph in each of the different tabs.
+Here is a link to the published shiny application: https://robin-stewart.shinyapps.io/final_project/
+
+![Online Shiny Application](../03 Visualizations/shinyOnlineApp.png)
